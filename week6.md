@@ -391,6 +391,97 @@ Block & Wakeup overhead vs Critical section 길이
 
 ### **8-2. Readers and Writers Problem**
 
+* 한 process가 DB에 write 중일 때 다른 process가 접근하면 안됨
 
+* read는 동시에 여럿이 해도 됨
+
+* solution
+	* Writer가 DB에 접근 허가를 아직 얻지 못한 상태에서는 모든 대기중인 Reader들을 다 DB에 접근하게 해준다.
+	* Writer는 대기 중인 Reader가 하나도 없을 때 DB 접근이 허용된다.
+	* 일단 Writer가 DB에 접근 중이면 Reader들은 접근이 금지된다.
+	* Writer가 DB에서 빠져나가야만 Reader의 접근이 허용된다.
+
+* Shared data
+	* DB 자체
+	* readcount ➔ 현재 DB에 접근 중인 Reader의 수
+
+* Synchronization variables
+	* mutax ➔ 공유 변수 readcount를 접근하는 코드(critical section)의 mutual exclusion 보장을 위해 사용
+	* db ➔ Reader와 Writer가 공유 DB 자체를 올바르게 접근하게 하는 역할
+
+그림 6-15
 
 ### **8-3. Dining-Philosophers Problem**
+
+그림 6-16
+
+위 그림 solution의 문제점
+
+* Deadlock 가능성이 있다.
+
+* 모든 철학자가 동시에 배가 고파져 왼쪽 젓가락을 집어버린 경우
+
+해결 방안
+
+* 4명의 철학자만이 테이블에 동시에 앉을 수 있도록 한다.
+
+* 젓가락을 두 개 모두 집을 수 있을 때에만 젓가락을 집을 수 있게 한다. (아래 그림)
+
+* 비대칭 : 짝수(홀수) 철학자는 왼쪽(오른쪽) 젓가락부터 집도록 한다.
+
+그림 6-17
+
+&nbsp;
+
+## **9. Monitor**
+
+Semaphore의 문제점
+
+* 코딩하기 힘들다.
+
+* 정확성(correctness)의 입증이 어렵다.
+
+* 자발적 협력(voluntary cooperation)이 필요하다.
+
+* 한번의 실수가 모든 시스템에 치명적 영항을 미친다.
+
+**Example :**
+
+그림 6-18
+
+**Monitor** : 동시 수행중인 프로세스 사이에서 abstract data type의 안전한 공유를 보장하기 위한 high-level synchronization construct (Semaphore와 다르게 lock을 할 필요 X)
+
+그림 6-19
+
+그림 6-20
+
+* 모니터 내에서는 한번에 하나의 프로세스만이 활동 가능
+
+* 프로그래머가 동기화 제약 조건을 명시적으로 코딩할 필요없음
+
+* 프로세스가 모니터 안에서 기다릴 수 있도록 하기 위해 `condition variable` 사용
+
+```c
+condition x, y;
+```
+
+* `condition variable`은 `wait`와 `signal` 연산에 의해서만 접근 가능
+
+```c
+x.wait();
+x.signal();
+```
+
+* `x.wait()`을 invoke한 프로세스는 다른 프로세스가 `x.signal()`을 invoke하기 전까지 suspend된다.
+
+* `x.signal()`은 정확하게 하나의 suspend된 프로세스를 resume한다. 
+
+* suspend된 프로세스가 없으면 아무 일도 일어나지 않는다.
+
+### **9-1. Bounded-Buffer Problem**
+
+그림 6-21
+
+### **9-2. Dining-Philosophers Problem**
+
+그림 6-22
